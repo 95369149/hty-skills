@@ -13,7 +13,7 @@ Default workbook:
 
 Maintain this workbook directly unless the user explicitly names another file. New orders append after the last real order row in `订单总台账`; never insert in the middle.
 
-This is the only production workbook. Do not synchronize or edit similarly named copies outside this directory. Store safety copies only under the hidden folder `.codex-backups/` beside the workbook.
+This is the only production workbook. The visible production directory must contain exactly one workbook: the canonical file above. Do not synchronize or edit similarly named copies outside this directory. Store safety copies only under the hidden folder `.codex-backups/` beside the workbook, and store transaction files only under the hidden folder `.codex-work/`. Never leave `.bak`, `.damaged`, timestamped, or temporary `.xlsx` files in the visible production directory, and never open a temporary workbook in WPS.
 
 ## Transactional Write Protocol
 
