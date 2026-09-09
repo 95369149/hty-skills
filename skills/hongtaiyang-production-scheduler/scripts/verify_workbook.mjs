@@ -38,7 +38,7 @@ const duplicates = Object.fromEntries(expectedOrders.flatMap(no => {
   const rows = orderRows.get(no) ?? [];
   return rows.length > 1 ? [[no, rows]] : [];
 }));
-const formulaColumns = [5, 22, 23, 24, 25]; // F/W/X/Y/Z; H may be an explicit user value.
+const formulaColumns = [5, 7, 22, 23, 24, 25]; // F/H/W/X/Y/Z; explicit user overrides remain possible.
 const formulaIssues = [];
 for (const no of expectedOrders) {
   const rows = orderRows.get(no) ?? [];
@@ -50,8 +50,13 @@ for (const no of expectedOrders) {
   }
 }
 
+const expectedRows = expectedOrders.flatMap(no => expected[no] ?? []).sort((a, b) => a - b);
+const contiguousIssues = expectedRows.length > 1 && expectedRows.some((row, i) => i > 0 && row !== expectedRows[i - 1] + 1)
+  ? [{rows: expectedRows}]
+  : [];
+
 const result = {
-  ok: missingSheets.length === 0 && expectedOrders.every(no => expected[no].length === 1) && Object.keys(duplicates).length === 0 && formulaIssues.length === 0,
+  ok: missingSheets.length === 0 && expectedOrders.every(no => expected[no].length === 1) && Object.keys(duplicates).length === 0 && formulaIssues.length === 0 && contiguousIssues.length === 0,
   workbookPath,
   size: stat.size,
   modifiedAt: stat.mtime.toISOString(),
@@ -60,7 +65,8 @@ const result = {
   missingSheets,
   expectedOrders: expected,
   duplicates,
-  formulaIssues
+  formulaIssues,
+  contiguousIssues
 };
 console.log(JSON.stringify(result, null, 2));
 if (!result.ok) process.exit(1);

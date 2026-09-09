@@ -9,17 +9,27 @@ description: Guides and maintains the Hongtaiyang production scheduling workbook
 
 Default workbook:
 
-`/Users/apple/Desktop/步国军/红太阳生产/红太阳生产计划排产看板（codex）.xlsx`
+`/Users/buguojun/Desktop/步国军/红太阳生产/红太阳生产计划排产看板（codex）.xlsx`
 
 Maintain this workbook directly unless the user explicitly names another file. New orders append after the last real order row in `订单总台账`; never insert in the middle.
 
 This is the only production workbook. The visible production directory must contain exactly one workbook: the canonical file above. Do not synchronize or edit similarly named copies outside this directory. Store safety copies only under the hidden folder `.codex-backups/` beside the workbook, and store transaction files only under the hidden folder `.codex-work/`. Never leave `.bak`, `.damaged`, timestamped, or temporary `.xlsx` files in the visible production directory, and never open a temporary workbook in WPS.
+
+## Workbook schema and field mapping
+
+`订单总台账` has 27 columns `A:AA`. Every appended row must contain exactly 27 values; personnel columns `R:V` and derived columns `W:Z` must not be shifted by an extra blank value. New rows copy the last real row's formatting, then write values and formulas explicitly.
+
+- Formula columns for new orders: `F` planned shipment, `H` partition, `W` remaining days, `X` risk flag, `Y` risk sequence, `Z` order type.
+- Normalize model names to the workbook convention (`6代1625自动送料`, not `六代机1625自动送料`) so the partition formula parses correctly. Preserve distinctive machine families such as `吊臂机` or laser models when the workbook has no equivalent normalization.
+- If the user explicitly supplies a delivery deadline such as “9月底” or “国庆节前”, preserve it in `F` with a formula/value override and also record the original work-duration requirement in `E`/`AA`; do not silently replace an explicit deadline with a computed date.
+- If the user explicitly calls an order a `样机`, set `Z` to a formula/value that returns `样机`; do not let the generic customer-address heuristic classify it as a customer order.
 
 ## Transactional Write Protocol
 
 Treat every workbook edit as a transaction. Do not report success until all steps pass.
 
 1. **Preflight**
+   - Before any write, close WPS/Excel/Numbers/LibreOffice processes and verify none remain. If an office process is active and cannot be safely closed, stop before preparing a temporary workbook.
    - Read the canonical workbook fresh from disk immediately before every edit. The current on-disk canonical file is the only edit source.
    - Never use a backup, an earlier export, a prepared temporary workbook, or remembered row data as the edit source. Backups are rollback-only.
    - If the user opens or saves the workbook after preparation begins, discard the prepared temporary workbook, reread the newly saved canonical file, and restart the transaction.
@@ -30,6 +40,7 @@ Treat every workbook edit as a transaction. Do not report success until all step
    - Find the last real order by the last non-empty value in `订单总台账!A:A`.
    - Never use `UsedRange` length, a fixed row number, sorting position, or blank formula rows to choose the destination.
    - Reject duplicate order numbers. Update an existing order only when the user explicitly sends a correction.
+   - If one user request contains multiple machines, split into distinct order numbers (`W029-1`, `W029-2`, etc.) when requested or when separate tracking is operationally necessary; each split row gets quantity `1` and copies the shared configuration.
 3. **Write to a temporary workbook**
    - Import the canonical workbook once.
    - Apply all requested edits in memory.
@@ -40,6 +51,7 @@ Treat every workbook edit as a transaction. Do not report success until all step
    - Confirm every expected order number appears exactly once and record its actual row.
    - Confirm new order rows are contiguous after the prior last real row, are not hidden, and are not excluded by an active filter.
    - Confirm formulas or explicit values in `F/H/W/X/Y/Z` match the order data. Explicit user values such as `智能12分区` override formula inference.
+   - Confirm an explicit machine count was not left only in free text: either keep a single quantity in `G` or split into individually trackable order numbers with `G=1`.
    - Render the affected rows and visually verify the values.
 5. **Commit atomically**
    - Replace the canonical workbook with the validated temporary file using an atomic rename.
