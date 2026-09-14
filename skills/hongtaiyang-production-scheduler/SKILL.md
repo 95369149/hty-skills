@@ -29,11 +29,11 @@ This is the only production workbook. The visible production directory must cont
 Treat every workbook edit as a transaction. Do not report success until all steps pass.
 
 1. **Preflight**
-   - Before any write, close WPS/Excel/Numbers/LibreOffice processes and verify none remain. If an office process is active and cannot be safely closed, stop before preparing a temporary workbook.
+   - Before any write, detect WPS/Excel/Numbers/LibreOffice windows and processes. If any target workbook is open, save it first (`Cmd/Ctrl+S` or the app's save action), then quit the office app and verify no related process remains. Do this automatically when possible; ask the user only if saving/closing fails or an unsaved-change prompt cannot be resolved safely.
    - Read the canonical workbook fresh from disk immediately before every edit. The current on-disk canonical file is the only edit source.
    - Never use a backup, an earlier export, a prepared temporary workbook, or remembered row data as the edit source. Backups are rollback-only.
    - If the user opens or saves the workbook after preparation begins, discard the prepared temporary workbook, reread the newly saved canonical file, and restart the transaction.
-   - Confirm WPS, Excel, Numbers, and LibreOffice are fully closed. If any office process is running, stop and ask the user to close it; background auto-save can overwrite the result.
+   - Confirm WPS, Excel, Numbers, and LibreOffice are fully closed before authoring. Never author while an office process or cloud-sync session can overwrite the workbook; background auto-save can otherwise replace the just-written data with a stale copy.
    - Record the workbook modification time, size, sheet names, and SHA-256 hash.
    - Save a timestamped backup in `.codex-backups/`.
 2. **Locate data dynamically**
@@ -54,7 +54,7 @@ Treat every workbook edit as a transaction. Do not report success until all step
    - Confirm an explicit machine count was not left only in free text: either keep a single quantity in `G` or split into individually trackable order numbers with `G=1`.
    - Render the affected rows and visually verify the values.
 5. **Commit atomically**
-   - Replace the canonical workbook with the validated temporary file using an atomic rename.
+   - Replace the canonical/original workbook at `/Users/buguojun/Desktop/步国军/红太阳生产/红太阳生产计划排产看板（codex）.xlsx` with the validated temporary file using an atomic rename. The canonical original path is the only deliverable; backups and temporary files are rollback/validation artifacts, never alternate outputs.
    - Reopen the canonical workbook and run `scripts/verify_workbook.mjs` with the expected order numbers.
    - Wait five seconds, then confirm modification time, size, and SHA-256 hash have not changed. A change means an office process overwrote the file; restore the backup and report failure.
 6. **Complete**
