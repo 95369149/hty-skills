@@ -70,14 +70,14 @@ If any validation fails, do not partially commit. Restore the rolling backup and
 When the user sends a new order, fill missing fields with these defaults:
 
 - `系统`：if not mentioned, write `乾诚`.
-- `电机`：if not mentioned, write `东菱`.
+- `电机`：if not mentioned, write `东菱`. Normalize all motor descriptions in the motor column: `以色列电机`/`以色列高创` → `高创`; `国产电机` → `东菱`. Keep any source wording only in the configuration description or remarks when it matters.
 - `机型`：`特价机`在生产分类和公式中等同于`5代机`，机型列统一写为`5代+幅面+形式`，例如`特价机2035自动送料`写为`5代2035自动送料`；如需保留特价属性，写入备注。
 - `空压机`：if not mentioned, write `无`.
 - `送料架`：
   - if the model is `定台`, write `无`;
   - if the model is `送料` and no special feeder is mentioned, write `简易送料架`;
   - if a special feeder is mentioned, preserve it, e.g. `四层送料架`, `一体送料架`, `送料+延长台面`.
-- Preserve explicit non-default values from the user, e.g. `以色列电机`, `国产电机`, `中瑞`, language-specific systems, or special feeder structures.
+- Preserve explicit non-default values from the user, such as `中瑞`, language-specific systems, or special feeder structures; apply the motor normalization rule above instead of copying nonstandard motor descriptors into the motor column.
 - Put free-form remarks only in `订单总台账!AA`. Do not put remarks into personnel columns.
 
 ## Daily Scheduling Rules
