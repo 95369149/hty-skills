@@ -13,7 +13,7 @@ Default workbook:
 
 Maintain this workbook directly unless the user explicitly names another file. New orders append after the last real order row in `订单总台账`; never insert in the middle.
 
-This is the only production workbook. The visible production directory must contain exactly one workbook: the canonical file above. Do not synchronize or edit similarly named copies outside this directory. Store safety copies only under the hidden folder `.codex-backups/` beside the workbook, and store transaction files only under the hidden folder `.codex-work/`. Never leave `.bak`, `.damaged`, timestamped, or temporary `.xlsx` files in the visible production directory, and never open a temporary workbook in WPS.
+This is the only production workbook and the only user-facing workbook. Modify this canonical file in place as the final result; do not create order-numbered copies, preview workbooks, or alternate deliverables. The visible production directory must contain exactly one workbook. A single rolling safety copy may exist only as `.codex-backups/latest-before-write.xlsx`; a single fixed transaction file may exist only as `.codex-work/transaction.xlsx`. Never leave timestamped, order-numbered, `.bak`, `.damaged`, preview, or temporary `.xlsx` files in the visible production directory, and never open the transaction file in WPS.
 
 ## Workbook schema and field mapping
 
@@ -35,7 +35,7 @@ Treat every workbook edit as a transaction. Do not report success until all step
    - If the user opens or saves the workbook after preparation begins, discard the prepared temporary workbook, reread the newly saved canonical file, and restart the transaction.
    - Confirm WPS, Excel, Numbers, and LibreOffice are fully closed before authoring. Never author while an office process or cloud-sync session can overwrite the workbook; background auto-save can otherwise replace the just-written data with a stale copy.
    - Record the workbook modification time, size, sheet names, and SHA-256 hash.
-   - Save a timestamped backup in `.codex-backups/`.
+   - Refresh the single rolling backup `.codex-backups/latest-before-write.xlsx`.
 2. **Locate data dynamically**
    - Find the last real order by the last non-empty value in `订单总台账!A:A`.
    - Never use `UsedRange` length, a fixed row number, sorting position, or blank formula rows to choose the destination.
@@ -44,24 +44,26 @@ Treat every workbook edit as a transaction. Do not report success until all step
 3. **Write to a temporary workbook**
    - Import the canonical workbook once.
    - Apply all requested edits in memory.
-   - Export to a temporary `.xlsx` beside the canonical workbook. Never export directly over the canonical file.
+   - If the source row or adjacent rows are hidden, explicitly unhide every newly appended or updated real-order row. Never inherit a hidden-row state that makes a written order invisible in WPS/Excel.
+   - Export only to `.codex-work/transaction.xlsx`; overwrite the prior transaction file instead of creating an order-numbered temporary workbook. Never export directly over the canonical file.
 4. **Validate the temporary workbook**
    - Reopen the temporary file from disk.
    - Confirm all 12 required sheets exist: `首页数据看板`, `订单总台账`, `排产执行表`, `使用说明`, `基础配置`, `工序负荷看板`, `异常跟踪表`, `今日调度清单`, `生产日报`, `每日排产表`, `待确认任务池`, `人员配置`.
    - Confirm every expected order number appears exactly once and record its actual row.
    - Confirm new order rows are contiguous after the prior last real row, are not hidden, and are not excluded by an active filter.
+   - Scan the exported `订单总台账` OOXML for `hidden="1"` on every real order row (column A nonempty). Do not rely only on the artifact runtime's visibility property: repair and revalidate until all real orders are visible in WPS/Excel.
    - Confirm formulas or explicit values in `F/H/W/X/Y/Z` match the order data. Explicit user values such as `智能12分区` override formula inference.
    - Confirm an explicit machine count was not left only in free text: either keep a single quantity in `G` or split into individually trackable order numbers with `G=1`.
    - Render the affected rows and visually verify the values.
 5. **Commit atomically**
-   - Replace the canonical/original workbook at `/Users/buguojun/Desktop/步国军/红太阳生产/红太阳生产计划排产看板（codex）.xlsx` with the validated temporary file using an atomic rename. The canonical original path is the only deliverable; backups and temporary files are rollback/validation artifacts, never alternate outputs.
+   - Replace the canonical/original workbook at `/Users/buguojun/Desktop/步国军/红太阳生产/红太阳生产计划排产看板（codex）.xlsx` with the validated transaction file using an atomic rename. The canonical original path is the only deliverable. Delete `.codex-work/transaction.xlsx` after a successful verification; the rolling backup is rollback-only, never an alternate output.
    - Reopen the canonical workbook and run `scripts/verify_workbook.mjs` with the expected order numbers.
    - Wait five seconds, then confirm modification time, size, and SHA-256 hash have not changed. A change means an office process overwrote the file; restore the backup and report failure.
 6. **Complete**
    - Report the canonical path, actual order rows, and final modification time.
    - Never say “已完成” based only on a write command or an in-memory inspection.
 
-If any validation fails, do not partially commit. Restore the backup and state which check failed.
+If any validation fails, do not partially commit. Restore the rolling backup and state which check failed.
 
 ## Order Intake Defaults
 
