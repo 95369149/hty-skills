@@ -20,6 +20,7 @@ This is the only production workbook and the only user-facing workbook. Modify t
 `订单总台账` has 27 columns `A:AA`. Every appended row must contain exactly 27 values; personnel columns `R:V` and derived columns `W:Z` must not be shifted by an extra blank value. New rows copy the last real row's formatting, then write values and formulas explicitly.
 
 - Formula columns for new orders: `F` planned shipment, `H` partition, `W` remaining days, `X` risk flag, `Y` risk sequence, `Z` order type.
+- `D` 下单日期必须写入与 Asia/Shanghai 当日一致的真实 Excel 日期值并保留日期格式，不能写入日期文本；导出后要确认 `F` 的交期公式可计算且不为 `#VALUE!`。不要把上一笔订单或脚本中的固定日期复用到新订单。
 - Normalize model names to the workbook convention (`6代1625自动送料`, not `六代机1625自动送料`) so the partition formula parses correctly. Preserve distinctive machine families such as `吊臂机` or laser models when the workbook has no equivalent normalization.
 - If the user explicitly supplies a delivery deadline such as “9月底” or “国庆节前”, preserve it in `F` with a formula/value override and also record the original work-duration requirement in `E`/`AA`; do not silently replace an explicit deadline with a computed date.
 - If the user explicitly calls an order a `样机`, set `Z` to a formula/value that returns `样机`; do not let the generic customer-address heuristic classify it as a customer order.
