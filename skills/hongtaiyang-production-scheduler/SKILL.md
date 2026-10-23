@@ -74,6 +74,7 @@ When the user sends a new order, fill missing fields with these defaults:
 - `电机`：if not mentioned, write `东菱`. Normalize all motor descriptions in the motor column: `以色列电机`/`以色列高创` → `高创`; `国产电机` → `东菱`. Keep any source wording only in the configuration description or remarks when it matters.
 - `机型`：`特价机`在生产分类和公式中等同于`5代机`，机型列统一写为`5代+幅面+形式`，例如`特价机2035自动送料`写为`5代2035自动送料`；如需保留特价属性，写入备注。
 - `空压机`：if not mentioned, write `无`.
+- `风机`：优先保留用户明确指定的功率、消音箱和变频器。未指定时，单独配置圆刀默认写`7.5KW风机＋消音箱`；配置气动刀默认写`9KW风机＋消音箱`；仅有振动刀时按切割材料判断，其中汽车脚垫默认写`7.5KW风机＋消音箱`。振动刀材料未给出明确对应规则时，不臆测功率，写`待确认`。
 - `送料架`：
   - if the model is `定台`, write `无`;
   - if the model is `送料` and no special feeder is mentioned, write `简易送料架`;
