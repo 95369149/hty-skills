@@ -108,6 +108,16 @@ Do not let stale overdue rows outrank recent carryover unless the user explicitl
 
 ## Output Format
 
+### 生产订单
+
+用户要求生成生产订单时，以 `246生产订单.xlsx` 的人工确认版式为准：
+
+- 使用 A4 横向、整页打印；以 WPS 打印预览显示 1 页为验收。
+- 顶部三行依次展示订单号/下单日期/机器编号、机型/工期/计划发货、客户地址/切割材料/订单状态。
+- 主体为左右两栏：左侧“钳工配置”，右侧“配电、走线及发货”；左侧项目较少时，右侧延伸行对应的左侧保持空白，不填无关文本或数字。
+- 底部保留“下单信息（原文）”，将用户原始下单内容完整保留为紧凑多行文本。
+- 延续用户已确认的蓝色标题/分区条、细边框、正常可读字号；不要为了凑一页将正文压缩成过小字号，也不要另建不同样式的订单文件。
+
 Always output daily plans in the user's plain format:
 
 ```text
