@@ -30,7 +30,7 @@ This is the only production workbook and the only user-facing workbook. Modify t
 Treat every workbook edit as a transaction. Do not report success until all steps pass.
 
 1. **Preflight**
-   - Before any write, detect WPS/Excel/Numbers/LibreOffice windows and processes. If any target workbook is open, save it first (`Cmd/Ctrl+S` or the app's save action), then quit the office app and verify no related process remains. Do this automatically when possible; ask the user only if saving/closing fails or an unsaved-change prompt cannot be resolved safely.
+   - Before any write, detect WPS/Excel/Numbers/LibreOffice windows and processes. If any target workbook is open, save each open target first (`Cmd/Ctrl+S` or the app's save action), then quit the office app and verify no related process remains. If a save prompt appears, choose save; never discard user changes. Do this automatically when possible; ask the user only if saving/closing fails or an unsaved-change prompt cannot be resolved safely.
    - Read the canonical workbook fresh from disk immediately before every edit. The current on-disk canonical file is the only edit source.
    - Never use a backup, an earlier export, a prepared temporary workbook, or remembered row data as the edit source. Backups are rollback-only.
    - If the user opens or saves the workbook after preparation begins, discard the prepared temporary workbook, reread the newly saved canonical file, and restart the transaction.
@@ -110,9 +110,10 @@ Do not let stale overdue rows outrank recent carryover unless the user explicitl
 
 ### 生产订单
 
-用户要求生成生产订单时，以 `246生产订单.xlsx` 的人工确认版式为准：
+用户要求生成生产订单时，以现有 `output/生产订单/生产订单汇总.xlsx` 中用户确认的 `W036` 页为版式基准，读取最新文件并在同一汇总中追加订单页，保留用户手工调整：
 
-- 使用 A4 横向、整页打印；以 WPS 打印预览显示 1 页为验收。
+- 使用 A4 纵向、窄页边距、整页打印；以 WPS 打印预览显示 1 页为验收。
+- 字体使用 12 号，全部内容完整显示；按内容调整行高、列宽、换行和打印布局。不能通过裁切、省略文字或缩小字号来满足单页。如果内容无法同时满足单页、12号和完整显示，明确说明并向用户确认处理方式。
 - 顶部三行依次展示订单号/下单日期/机器编号、机型/工期/计划发货、客户地址/切割材料/订单状态。
 - 主体为左右两栏：左侧“钳工配置”，右侧“配电、走线及发货”；左侧项目较少时，右侧延伸行对应的左侧保持空白，不填无关文本或数字。
 - 底部保留“下单信息（原文）”，将用户原始下单内容完整保留为紧凑多行文本。
