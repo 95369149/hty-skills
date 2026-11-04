@@ -71,10 +71,12 @@ If any validation fails, do not partially commit. Restore the rolling backup and
 When the user sends a new order, fill missing fields with these defaults:
 
 - `系统`：if not mentioned, write `乾诚`.
-- `电机`：if not mentioned, write `东菱`. Normalize all motor descriptions in the motor column: `以色列电机`/`以色列高创` → `高创`; `国产电机` → `东菱`. Keep any source wording only in the configuration description or remarks when it matters.
+- `电机`：未注明时默认 `高创`；“高创/东菱”按用户指示填高创，并保留原文。明确指定国产或东菱仍填东菱，以色列电机填高创。
+- `机器加密`：未注明时默认 `加密`；明确指定不加密或二次加密时按订单填写。
+- `客户地址`：按订单填写的省份或具体地址原样记录，无需额外要求具体地点；运输方式仅在依据充分时确定。
 - `机型`：`特价机`在生产分类和公式中等同于`5代机`，机型列统一写为`5代+幅面+形式`，例如`特价机2035自动送料`写为`5代2035自动送料`；如需保留特价属性，写入备注。
 - `空压机`：if not mentioned, write `无`.
-- `风机`：优先保留用户明确指定的功率、消音箱和变频器。未指定时，单独配置圆刀默认写`7.5KW风机＋消音箱`；配置气动刀默认写`9KW风机＋消音箱`；仅有振动刀时按切割材料判断，其中汽车脚垫默认写`7.5KW风机＋消音箱`。振动刀材料未给出明确对应规则时，不臆测功率，写`待确认`。
+- `风机`：优先保留用户明确指定的功率、消音箱和变频器。未指定功率时，仅配置圆刀默认 7.5KW，其他配置默认 9KW；单独圆刀默认配消音箱，气动刀默认配消音箱。其他消音箱及变频器按明确配置填写。
 - `送料架`：
   - if the model is `定台`, write `无`;
   - if the model is `送料` and no special feeder is mentioned, write `简易送料架`;
